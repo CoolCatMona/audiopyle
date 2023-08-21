@@ -79,9 +79,30 @@ def ensure_exists(filepath: str, raise_on_not_exists: bool = True) -> bool:
     exists = os.path.exists(filepath)
 
     if not exists and raise_on_not_exists:
-        raise FileNotFoundError(f"File not found: {filepath}")
+        raise FileNotFoundError(f"File or Directory not found: {filepath}")
 
     return exists
+
+
+def ensure_directory(filepath: str, raise_on_not_exists: bool = True) -> bool:
+    """Ensure that a filepath is a directory. If it is not, raise an exception or return False.
+
+    Args:
+        filepath (str): Path to Directory
+        raise_on_not_exists (bool): Raise an exception if the given filepath is not a directory.
+
+    Raises:
+        NotADirectoryError: If raise_on_not_exists is True and the directory does not exist.
+
+    Returns:
+        bool: filepath is a directory.
+    """
+    isdir = os.path.isdir(filepath)
+
+    if not isdir and raise_on_not_exists:
+        raise NotADirectoryError(f"Given filepath is not a directory: {filepath}")
+
+    return isdir
 
 
 def is_audio(filepath: str) -> bool:
@@ -91,10 +112,6 @@ def is_audio(filepath: str) -> bool:
 
 
 def count_files(directory: str) -> int:
-    """Counts the number of files in a directory."""
-    count = 0
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if is_audio(file):
-                count += 1
+    """Counts the number of files in a directory and its subdirectories."""
+    count = sum([len(files) for _, _, files in os.walk(directory)])
     return count
