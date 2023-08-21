@@ -1,6 +1,7 @@
 import logging
 import os
 from typing import Optional, Union
+import re
 
 
 class CustomFormatter(logging.Formatter):
@@ -81,3 +82,19 @@ def ensure_exists(filepath: str, raise_on_not_exists: bool = True) -> bool:
         raise FileNotFoundError(f"File not found: {filepath}")
 
     return exists
+
+
+def is_audio(filepath: str) -> bool:
+    """Checks if a file is an audio file."""
+    audio_regex = r"\.(mp3)$"
+    return re.search(audio_regex, filepath, re.IGNORECASE) is not None
+
+
+def count_files(directory: str) -> int:
+    """Counts the number of files in a directory."""
+    count = 0
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if is_audio(file):
+                count += 1
+    return count

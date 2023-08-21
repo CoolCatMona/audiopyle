@@ -27,6 +27,13 @@ class File(ABC):
         """JSON Representation of File object."""
         return json.dumps(self.__dict__)
 
+    def move(self, new_filepath: str):
+        """Moves the file to a new filepath."""
+        # Move File
+        # Update Filepath
+        # TODO: How do I keep track of the original file and where to move it?
+        raise NotImplementedError
+
     @classmethod
     @abstractmethod
     def _from_filepath(cls) -> Self:
