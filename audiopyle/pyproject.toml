@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "audiopyle"
+version = "0.1.0"
+description = ""
+authors = ["Sean Dougher <sean.dougher@joby.aero>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.0"
+pre-commit = "^3.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "7.4.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
