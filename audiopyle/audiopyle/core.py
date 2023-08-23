@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict
 import json
 from typing import Self
+from pathlib import Path
 
 
 @dataclass
@@ -14,6 +15,7 @@ class File(ABC):
         _filepath (str): Path to the file.
     """
 
+    # TODO: These should be path objects
     _filename: str
     _filepath: str
 
@@ -27,12 +29,17 @@ class File(ABC):
         """JSON Representation of File object."""
         return json.dumps(self.__dict__)
 
-    def move(self, new_filepath: str):
+    def move(self, target_directory: str | Path):
         """Moves the file to a new filepath."""
-        # Move File
-        # Update Filepath
-        # TODO: How do I keep track of the original file and where to move it?
-        raise NotImplementedError
+        if isinstance(target_directory, str):
+            target_directory = Path(target_directory)
+        source = Path(self._filepath)  # Might already be a path object?
+        target = target_directory / source.name
+
+        source = source.rename(target)
+
+        self._filepath = source.resolve()
+        self._filename = source.name  # Potentially unnecessary
 
     @classmethod
     @abstractmethod

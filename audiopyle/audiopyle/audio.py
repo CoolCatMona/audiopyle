@@ -1,6 +1,8 @@
 from audiopyle.core import File
 from typing import Self
-from pydub.utils import mediainfo
+from pathlib import Path
+
+# from pydub.utils import mediainfo
 
 
 class Audio(File):
@@ -15,8 +17,14 @@ class Audio(File):
     tags: list[str]
 
     @classmethod
-    def _from_filepath(cls, filepath: str) -> Self:
-        raise NotImplementedError
+    def _from_filepath(cls, filepath: Path | str) -> Self:
+        """Creates an Audio object given a filepath."""
+        if isinstance(filepath, Path):
+            filename = filepath.name
+            filepath = filepath.resolve()
+        else:
+            filename = Path(filepath).name
+        return cls(_filepath=filepath, _filename=filename)
 
 
 def get_audio_oirigin(comment: str) -> str:
