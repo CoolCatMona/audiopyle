@@ -1,10 +1,12 @@
 from audiopyle.core import File
 from typing import Self
 from pathlib import Path
+from dataclasses import dataclass
 
-# from pydub.utils import mediainfo
+from pydub.utils import mediainfo
 
 
+@dataclass
 class Audio(File):
     """Representation of an Audio File."""
 
@@ -12,9 +14,10 @@ class Audio(File):
     album: str
     year: int
     length: int
+    comment: str
     bit_rate: int
 
-    tags: list[str]
+    tags: list[str] = None
 
     @classmethod
     def _from_filepath(cls, filepath: Path | str) -> Self:
@@ -24,7 +27,31 @@ class Audio(File):
             filepath = filepath.resolve()
         else:
             filename = Path(filepath).name
-        return cls(_filepath=filepath, _filename=filename)
+
+        try:
+            file_info = mediainfo(filepath)
+            tags = file_info.get("TAG")
+            title = tags.get("title", "N/A")
+            album = tags.get("album", "N/A")
+            year = tags.get("date", "N/A")
+            comment = tags.get("comment", "") + tags.get("ID3v1 Comment", "")
+
+            length = file_info.get("duration", 0)
+            bit_rate = file_info.get("bit_rate", 0)
+
+        except AttributeError as e:
+            raise
+
+        return cls(
+            _filepath=filepath,
+            _filename=filename,
+            title=title,
+            album=album,
+            year=year,
+            length=length,
+            bit_rate=bit_rate,
+            comment=comment,
+        )
 
 
 def get_audio_oirigin(comment: str) -> str:

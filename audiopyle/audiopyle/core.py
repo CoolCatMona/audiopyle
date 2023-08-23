@@ -15,7 +15,6 @@ class File(ABC):
         _filepath (str): Path to the file.
     """
 
-    # TODO: These should be path objects
     _filename: str
     _filepath: str
 
@@ -33,13 +32,13 @@ class File(ABC):
         """Moves the file to a new filepath."""
         if isinstance(target_directory, str):
             target_directory = Path(target_directory)
-        source = Path(self._filepath)  # Might already be a path object?
+
+        source = Path(self._filepath)
         target = target_directory / source.name
 
         source = source.rename(target)
 
         self._filepath = source.resolve()
-        self._filename = source.name  # Potentially unnecessary
 
     @classmethod
     @abstractmethod
