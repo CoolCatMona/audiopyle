@@ -30,7 +30,7 @@ class Audio(File):
 
         try:
             file_info = mediainfo(filepath)
-            tags = file_info.get("TAG")
+            tags = file_info.get("TAG", {})
             title = tags.get("title", "N/A")
             album = tags.get("album", "N/A")
             year = tags.get("date", "N/A")
