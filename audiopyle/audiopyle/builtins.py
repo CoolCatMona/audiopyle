@@ -1,7 +1,10 @@
 import logging
 import os
-from typing import Optional, Union
 import re
+from typing import Optional, Union
+
+import win32con
+import win32file
 
 
 class CustomFormatter(logging.Formatter):
@@ -115,3 +118,41 @@ def count_files(directory: str) -> int:
     """Counts the number of files in a directory and its subdirectories."""
     count = sum([len(files) for _, _, files in os.walk(directory)])
     return count
+
+
+def get_creation_time(path):
+    return win32file.GetFileTime(
+        win32file.CreateFile(
+            path,
+            win32con.GENERIC_READ,
+            0,
+            None,
+            win32con.OPEN_EXISTING,
+            win32con.FILE_ATTRIBUTE_NORMAL,
+            None,
+        )
+    )[0]
+
+
+def set_creation_time(path, creation_time):
+    fh = win32file.CreateFile(
+        path,
+        win32con.GENERIC_WRITE,
+        0,
+        None,
+        win32con.OPEN_EXISTING,
+        win32con.FILE_ATTRIBUTE_NORMAL,
+        None,
+    )
+    win32file.SetFileTime(fh, creation_time, None, None)
+    fh.close()
+
+
+def sanitize_directory_name(name: str):
+    # Define the regex pattern for invalid characters
+    invalid_chars_pattern = r'[<>:"/\\|?*]'
+
+    # Replace invalid characters with an underscore
+    sanitized_name = re.sub(invalid_chars_pattern, "-", name)
+
+    return sanitized_name

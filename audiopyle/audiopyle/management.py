@@ -1,10 +1,12 @@
 """File and Directory management."""
-from typing import Self
-from audiopyle import builtins, audio, core
-from pathlib import Path
+
 import os
 import shutil
 from functools import cached_property
+from pathlib import Path
+from typing import Self
+
+from audiopyle import audio, builtins, core
 
 
 class Directory:
@@ -29,9 +31,9 @@ class Directory:
         """Recursively walk directories for a list of file objects"""
         all_files = []
         for root, _, files in os.walk(self.directory_path):
-            for file in files:
+            for _file in files:
                 # TODO: Create file based on file extension
-                all_files.append(audio.Audio._from_filepath(Path(root, file)))
+                all_files.append(audio.Audio._from_filepath(Path(root, _file)))
         return all_files
 
     @cached_property

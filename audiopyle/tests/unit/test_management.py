@@ -1,8 +1,11 @@
 """Test for file and directory management."""
-from audiopyle import management
-import pytest
+
 import shutil
 from pathlib import Path
+
+import pytest
+
+from audiopyle import management
 
 
 @pytest.fixture(scope="function")

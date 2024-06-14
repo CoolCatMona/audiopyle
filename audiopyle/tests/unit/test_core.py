@@ -1,8 +1,11 @@
 """Test classes and methods defined in the audiopyle.core module"""
-import pytest
-from audiopyle import core
-from typing import Self
+
 from pathlib import Path
+from typing import Self
+
+import pytest
+
+from audiopyle import core
 
 
 class DummyFile(core.File):

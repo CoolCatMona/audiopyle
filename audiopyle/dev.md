@@ -138,6 +138,9 @@ MFCC0 - Energy/Loudness of a signal
 
 Higher order MFCCs may look similar because of overlapping information captured by adjacent coeefficients.
 
+[Video on MFCCs](https://www.youtube.com/watch?v=4_SH2nfbQZ8)
+[MFCC Demo](https://learn.flucoma.org/reference/mfcc/)
+
 ## Timbre
 
 Color or Quality of a sound. Allows us to distinguish between different sources of a sound that are playing the same note at the same loudness.
@@ -151,3 +154,13 @@ Brighter colors represent higher amplitudes (louder)
 Darker colors represent lower amplitudes (quieter)
 
 [Music Classification](https://blog.paperspace.com/music-genre-classification-using-librosa-and-pytorch/)
+
+## What if I just have music notes?
+
+Decompose the audio into its constituent notes, then analyze the notes
+
+Guess the music genre based on lyrics and audio file
+Look at what openai did
+- https://openai.com/blog/jukebox/
+
+https://umap-learn.readthedocs.io/en/latest/

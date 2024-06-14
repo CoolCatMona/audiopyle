@@ -1,7 +1,10 @@
 """Test builtin methods for audiopyle"""
-import pytest
+
 import logging
 import os
+
+import pytest
+
 from audiopyle import builtins
 
 
