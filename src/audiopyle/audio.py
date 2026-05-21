@@ -157,6 +157,6 @@ def filepath_to_rekordbox_uri(filepath: str) -> str:
         Rekordbox's own normalization.
     """
     forward = filepath.replace("\\", "/")
-    encoded = urllib.parse.quote(forward, safe=":()!,+$#@'")
+    encoded = urllib.parse.quote(forward, safe="/:()!,+$#@'")
     uri = "file://localhost/" + encoded
     return re.sub(r"%[0-9A-Fa-f]{2}", lambda m: m.group(0).lower(), uri)
