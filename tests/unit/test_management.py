@@ -88,3 +88,14 @@ def test_move_files_is_not_implemented(fx_temp_dir: Path) -> None:
     d = management.Directory._from_filepath(fx_temp_dir)
     with pytest.raises(NotImplementedError):
         d.move_files()
+
+
+def test_directory_size_sums_file_bytes(tmp_path: Path) -> None:
+    d = tmp_path / "test_dir"
+    d.mkdir()
+    (d / "a.txt").write_bytes(b"abc")  # 3 bytes
+    (d / "b.txt").write_bytes(b"defgh")  # 5 bytes
+
+    directory = management.Directory._from_filepath(d)
+
+    assert directory._directory_size == 8

@@ -19,7 +19,9 @@ class Directory:
         self.logger = builtins.get_or_configure_logger(__name__)
         self.directory_path: Path = directory_path
         self._directory_path_str: str = str(self.directory_path)
-        self._directory_size: int = os.path.getsize(self.directory_path)
+        self._directory_size: int = sum(
+            p.stat().st_size for p in self.directory_path.rglob("*") if p.is_file()
+        )
         self._num_files: int = builtins.count_files(self.directory_path)
 
     @classmethod
