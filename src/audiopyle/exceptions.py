@@ -15,7 +15,3 @@ class ExtractionError(AudiopyleError):
 
 class ConfigError(AudiopyleError):
     """Raised when the configuration file is missing required fields or malformed."""
-
-
-class ConflictError(AudiopyleError):
-    """Raised when a destination path collision cannot be resolved by policy."""
