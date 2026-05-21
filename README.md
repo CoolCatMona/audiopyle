@@ -1,27 +1,53 @@
-# AudioPyle
+# audiopyle
 
-Management and analyses of local audio files.
+audiopyle is a local music management tool. Point it at a staging
+directory full of downloaded zips and loose audio files; it extracts the
+zips, sorts everything into a `year / month` tree under your music
+library, and leaves the staging directory empty.
 
+```
+~/Music/
+  2026/
+    05 - May/
+      Artist - Album/
+        01 - Track.mp3
+      Single Track.mp3
+```
 
-## TODO:
+## Setup
 
-- [ ] Logging module to keep track of how files have moved
-  - Old Filepath -> New Filepath
-  - number of files moved
-  - number of files not moved
-  - number of directories created...
+See [docs/setup.md](docs/setup.md) for per-platform instructions
+(macOS, Ubuntu, Windows) and the bootstrap scripts that automate them.
 
-- [ ] Sorting
-  - Multiple sorts i.e Date, Title, etc.
+## Usage
 
-- [ ] Documentation
-  - [ ] Styleguide
+```sh
+# One-time: create a starter config file.
+audiopyle config init
 
-- [ ] Rekordbox XML Parsing
-  - [ ] Read XML tags
-  - [ ] Store them safely
-  - [ ] Update them
-  - [ ] Songs in the same album should have the same label
-  - [ ] Capitalize tags given by the Remixer
-  - [ ] Function to split Remixer tags into list of tags
-  - [ ] Discogs Tags
+# Preview what would happen.
+audiopyle organize --dry-run
+
+# Do it.
+audiopyle organize
+```
+
+CLI flags (`--staging`, `--library`, `--config`) override values from
+the config file. Run `audiopyle --help` for the full surface.
+
+## Development
+
+```sh
+just            # list available recipes
+just sync       # install/refresh deps
+just test       # run all tests
+just unit       # only unit tests
+just lint       # ruff check
+just format     # ruff format
+just typecheck  # mypy
+just run organize --help
+```
+
+## License
+
+MIT.
