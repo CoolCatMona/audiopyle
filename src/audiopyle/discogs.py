@@ -13,9 +13,7 @@ import requests
 from audiopyle.audio import Audio
 
 DEFAULT_BASE_URL = "https://api.discogs.com"
-DEFAULT_USER_AGENT = (
-    "audiopyle/0.2 (+https://github.com/CoolCatMona/audiopyle)"
-)
+DEFAULT_USER_AGENT = "audiopyle/0.2 (+https://github.com/CoolCatMona/audiopyle)"
 
 
 @dataclass
@@ -124,9 +122,7 @@ class DiscogsClient:
         return []
 
 
-def _parse_style_tags(
-    params: DiscogsSearchParameters, payload: dict[str, object]
-) -> list[str]:
+def _parse_style_tags(params: DiscogsSearchParameters, payload: dict[str, object]) -> list[str]:
     target = (params.release_title or "").lower()
     results = payload.get("results") or []
     if not isinstance(results, list):

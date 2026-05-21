@@ -95,11 +95,7 @@ def test_config_init_writes_file(tmp_path: Path) -> None:
 def test_config_show_prints_resolved(tmp_path: Path) -> None:
     runner = CliRunner()
     cfg = tmp_path / "config.toml"
-    cfg.write_text(
-        '[paths]\n'
-        f'staging = "{tmp_path / "stage"}"\n'
-        f'library = "{tmp_path / "lib"}"\n'
-    )
+    cfg.write_text(f'[paths]\nstaging = "{tmp_path / "stage"}"\nlibrary = "{tmp_path / "lib"}"\n')
 
     result = runner.invoke(app, ["config", "show", "--config", str(cfg)])
 

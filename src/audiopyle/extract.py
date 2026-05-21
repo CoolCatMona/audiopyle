@@ -22,9 +22,7 @@ def count_audio_in_zip(zip_path: Path, audio_extensions: tuple[str, ...]) -> int
     """
     exts = {ext.lower() for ext in audio_extensions}
     with zipfile.ZipFile(zip_path) as zf:
-        return sum(
-            1 for name in zf.namelist() if not name.endswith("/") and _suffix(name) in exts
-        )
+        return sum(1 for name in zf.namelist() if not name.endswith("/") and _suffix(name) in exts)
 
 
 def extract_zip(
@@ -58,7 +56,7 @@ def extract_zip(
         strip_prefix = _common_top_level(members)
 
         for member in members:
-            relative = member[len(strip_prefix):] if strip_prefix else member
+            relative = member[len(strip_prefix) :] if strip_prefix else member
             _validate_member(member, relative)
             target = dest_dir / relative
             target.parent.mkdir(parents=True, exist_ok=True)

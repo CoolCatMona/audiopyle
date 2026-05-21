@@ -57,16 +57,10 @@ def organize_cmd(
         dry_run=cfg.dry_run,
     )
 
-    albums = sum(
-        1 for r in results if r.kind is organize_module.ItemKind.ALBUM_ARCHIVE and r.ok
-    )
-    singles = sum(
-        1 for r in results if r.kind is organize_module.ItemKind.SINGLE_FILE and r.ok
-    )
+    albums = sum(1 for r in results if r.kind is organize_module.ItemKind.ALBUM_ARCHIVE and r.ok)
+    singles = sum(1 for r in results if r.kind is organize_module.ItemKind.SINGLE_FILE and r.ok)
     skipped_files = sum(r.files_skipped for r in results)
-    ignored = sum(
-        1 for r in results if r.kind is organize_module.ItemKind.IGNORED
-    )
+    ignored = sum(1 for r in results if r.kind is organize_module.ItemKind.IGNORED)
     typer.echo(
         f"Processed: {len(results)}\n"
         f"  Albums moved:  {albums}\n"

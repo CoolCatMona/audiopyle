@@ -126,13 +126,13 @@ def write_default_config(path: Path) -> None:
         raise FileExistsError(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        '[paths]\n'
+        "[paths]\n"
         'staging = "~/Desktop/staging"\n'
         'library = "~/Music"\n'
-        '\n'
-        '[organize]\n'
+        "\n"
+        "[organize]\n"
         'audio_extensions = [".mp3", ".flac", ".wav", ".aiff"]\n'
-        'dry_run = false\n',
+        "dry_run = false\n",
         encoding="utf-8",
     )
 

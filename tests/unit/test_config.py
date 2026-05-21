@@ -20,13 +20,13 @@ def test_load_reads_paths_and_extensions(tmp_path: Path) -> None:
     """``load_config`` reads the documented schema."""
     cfg_path = tmp_path / "config.toml"
     cfg_path.write_text(
-        '[paths]\n'
+        "[paths]\n"
         'staging = "~/Desktop/staging"\n'
         'library = "~/Music"\n'
-        '\n'
-        '[organize]\n'
+        "\n"
+        "[organize]\n"
         'audio_extensions = [".mp3", ".flac"]\n'
-        'dry_run = true\n'
+        "dry_run = true\n"
     )
 
     cfg = config.load_config(cfg_path)

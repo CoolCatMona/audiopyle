@@ -47,9 +47,7 @@ def test_ensure_directory(dirpath, raise_on_not_exists, expected_result):
         with pytest.raises(expected_result):
             builtins.ensure_directory(dirpath, raise_on_not_exists)
     else:
-        assert (
-            builtins.ensure_directory(dirpath, raise_on_not_exists) == expected_result
-        )
+        assert builtins.ensure_directory(dirpath, raise_on_not_exists) == expected_result
 
 
 @pytest.mark.parametrize(

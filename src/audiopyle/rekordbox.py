@@ -58,9 +58,7 @@ class Field:
         if not self._content:
             return
         items = [
-            item.strip().replace("-", " ")
-            for item in self._content.split(sep)
-            if item.strip()
+            item.strip().replace("-", " ") for item in self._content.split(sep) if item.strip()
         ]
         unique = {item: None for item in items}
         capitalized = [" ".join(w.capitalize() for w in item.split()) for item in unique]
