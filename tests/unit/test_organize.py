@@ -84,3 +84,85 @@ def test_classify_empty_zip_is_ignored(tmp_path: Path) -> None:
     _make_zip(archive, {"readme.txt": b""})
     item = organize.StagedItem(source=archive, is_archive=True, mtime=datetime.now())
     assert organize.classify(item, (".mp3",)) is organize.ItemKind.IGNORED
+
+
+def test_organize_moves_album_into_year_month_folder(tmp_path: Path) -> None:
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    archive = staging / "Artist - Album.zip"
+    _make_zip(archive, {"01.mp3": b"a", "02.mp3": b"b"})
+    import os
+
+    target_time = datetime(2026, 5, 21, 12, 0, 0)
+    os.utime(archive, (target_time.timestamp(), target_time.timestamp()))
+
+    library = tmp_path / "library"
+    library.mkdir()
+
+    results = organize.organize(
+        staging=staging,
+        library=library,
+        audio_extensions=(".mp3",),
+        dry_run=False,
+    )
+
+    expected_dir = library / "2026" / "05 - May" / "Artist - Album"
+    assert (expected_dir / "01.mp3").read_bytes() == b"a"
+    assert (expected_dir / "02.mp3").read_bytes() == b"b"
+    assert not archive.exists()
+    assert any(r.ok for r in results)
+
+
+def test_organize_moves_loose_single_into_year_month(tmp_path: Path) -> None:
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    track = staging / "Track.mp3"
+    track.write_bytes(b"a")
+    import os
+
+    target_time = datetime(2026, 5, 21, 12, 0, 0)
+    os.utime(track, (target_time.timestamp(), target_time.timestamp()))
+
+    library = tmp_path / "library"
+    library.mkdir()
+
+    organize.organize(staging, library, (".mp3",), dry_run=False)
+
+    assert (library / "2026" / "05 - May" / "Track.mp3").read_bytes() == b"a"
+    assert not track.exists()
+
+
+def test_organize_dry_run_writes_nothing(tmp_path: Path) -> None:
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    track = staging / "Track.mp3"
+    track.write_bytes(b"a")
+
+    library = tmp_path / "library"
+    library.mkdir()
+
+    organize.organize(staging, library, (".mp3",), dry_run=True)
+
+    assert track.exists()
+    assert list(library.iterdir()) == []
+
+
+def test_organize_merges_into_existing_album_folder(tmp_path: Path) -> None:
+    library = tmp_path / "library"
+    existing = library / "2026" / "05 - May" / "Artist - Album"
+    existing.mkdir(parents=True)
+    (existing / "01.mp3").write_bytes(b"existing")
+
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    archive = staging / "Artist - Album.zip"
+    _make_zip(archive, {"01.mp3": b"new", "02.mp3": b"b"})
+    import os
+
+    when = datetime(2026, 5, 21).timestamp()
+    os.utime(archive, (when, when))
+
+    organize.organize(staging, library, (".mp3",), dry_run=False)
+
+    assert (existing / "01.mp3").read_bytes() == b"existing"
+    assert (existing / "02.mp3").read_bytes() == b"b"
