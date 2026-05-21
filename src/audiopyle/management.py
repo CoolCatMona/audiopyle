@@ -1,4 +1,6 @@
-"""File and Directory management."""
+"""File and directory management utilities."""
+
+from __future__ import annotations
 
 import os
 import shutil
@@ -6,72 +8,85 @@ from functools import cached_property
 from pathlib import Path
 from typing import Self
 
-from audiopyle import audio, builtins, core
+from audiopyle import builtins
 
 
 class Directory:
-    """Class for managing a directory of files."""
+    """A read-side view of a directory of files."""
 
-    def __init__(self, directory_path: Path):
+    def __init__(self, directory_path: Path) -> None:
+        """Initialize from a path that is known to exist and be a directory."""
         self.logger = builtins.get_or_configure_logger(__name__)
         self.directory_path: Path = directory_path
-        self._directory_path_str = str(self.directory_path)
+        self._directory_path_str: str = str(self.directory_path)
         self._directory_size: int = os.path.getsize(self.directory_path)
         self._num_files: int = builtins.count_files(self.directory_path)
 
     @classmethod
-    def _from_filepath(cls, directory_path: str) -> Self:
-        """Creates a Directory object given a filepath."""
+    def _from_filepath(cls, directory_path: str | Path) -> Self:
+        """Construct a :class:`Directory` after validating the path."""
         builtins.ensure_exists(directory_path)
         builtins.ensure_directory(directory_path)
-        return cls(directory_path)
+        return cls(Path(directory_path))
 
     @cached_property
-    def files(self) -> list[core.File]:
-        """Recursively walk directories for a list of file objects"""
-        all_files = []
+    def files(self) -> list[Path]:
+        """Return all files under :attr:`directory_path` as paths.
+
+        This is intentionally lazy: it does not parse audio metadata. Use
+        :meth:`audio_files` when ID3/tag reads are actually needed.
+        """
+        result: list[Path] = []
         for root, _, files in os.walk(self.directory_path):
-            for _file in files:
-                # TODO: Create file based on file extension
-                all_files.append(audio.Audio._from_filepath(Path(root, _file)))
-        return all_files
+            for name in files:
+                result.append(Path(root) / name)
+        return result
+
+    def audio_files(self) -> list[Path]:
+        """Return only files whose suffix is in the default audio set."""
+        return [p for p in self.files if builtins.is_audio(p)]
 
     @cached_property
-    def _empty_directories(self) -> list[Path]:
-        """Returns a list of empty subdirectories."""
-        dirs = []
-        for subdir in self.directory_path.rglob("*"):
-            if subdir.is_dir() and not any(subdir.iterdir()):
-                dirs.append(subdir)
-        return dirs
+    def empty_subdirectories(self) -> list[Path]:
+        """Return all empty subdirectories (excluding the root)."""
+        return [
+            subdir
+            for subdir in self.directory_path.rglob("*")
+            if subdir.is_dir() and not any(subdir.iterdir())
+        ]
 
-    def _delete_empty_directories(self):
-        """Deletes empty subdirectories via ``pathlib.Path.rmdir()``."""
-        for directory in self._empty_directories:
-            directory.rmdir()
+    def delete_empty_subdirectories(self) -> None:
+        """Delete every empty subdirectory found by :attr:`empty_subdirectories`."""
+        for subdir in self.empty_subdirectories:
+            subdir.rmdir()
 
     def _create_directory(self, *subdirectories: str) -> Path:
-        """Creates a new subdirectory."""
-        _new_path = Path(self.directory_path, *subdirectories)
-        _new_path.mkdir(parents=True, exist_ok=True)
-        return _new_path
+        """Create and return a nested subdirectory under the managed path."""
+        new_path = Path(self.directory_path, *subdirectories)
+        new_path.mkdir(parents=True, exist_ok=True)
+        return new_path
 
-    def backup(self):
-        """Creates a backup of a directory"""
+    def backup(self) -> Path:
+        """Copy the directory to a sibling ``<name>_bak`` location.
+
+        Returns:
+            The backup directory's path.
+        """
         self.logger.debug(
-            f"Creating backup of {self.directory_path} ({self._num_files} totaling {self._directory_size} bytes)..."
+            "Creating backup of %s (%d files, %d bytes)",
+            self.directory_path,
+            self._num_files,
+            self._directory_size,
         )
-        backup_filepath = self._directory_path_str + "_bak"
-        shutil.copytree(self.directory_path, backup_filepath)
-        self.logger.debug(f"Backup created at {backup_filepath}")
+        backup_path = Path(self._directory_path_str + "_bak")
+        shutil.copytree(self.directory_path, backup_path)
+        return backup_path
 
-    def move_files(self):
-        """Move files in a directory"""
-        # For each file in directory
-        # use some criteria to move it to a new directory, i.e 'Root / Year / Album /' or 'Root / Genre / Album /'
-        # Handle one or more of the criteria not existing
-        # target_directory = self._create_directory(file.year, file.album)
-        # file.move(target_directory)
-        # Remove empty directories afterwards
-        # Should be able to do this multithreaded...
-        raise NotImplementedError
+    def move_files(self) -> None:
+        """Reserved for future use.
+
+        The actual staging-to-library move logic lives in
+        :mod:`audiopyle.organize`. This method exists as a marker on
+        legacy callers; invoke :func:`audiopyle.organize.organize` instead.
+        """
+        raise NotImplementedError("Use audiopyle.organize.organize instead.")
