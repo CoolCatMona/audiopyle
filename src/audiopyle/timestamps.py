@@ -84,7 +84,6 @@ def set_creation_time(path: Path, when: datetime) -> None:
 
 
 def _windows_get_creation_time(path: Path) -> datetime:
-    import pywintypes  # noqa: F401  # ensure pywin32 is loadable
     import win32con
     import win32file
 
@@ -101,7 +100,7 @@ def _windows_get_creation_time(path: Path) -> datetime:
         creation, _, _ = win32file.GetFileTime(handle)
     finally:
         handle.Close()
-    return datetime.fromtimestamp(int(creation))
+    return datetime.fromtimestamp(float(creation))
 
 
 def _windows_set_creation_time(path: Path, when: datetime) -> None:

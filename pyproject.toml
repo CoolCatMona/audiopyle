@@ -83,5 +83,5 @@ strict = true
 files = ["src/audiopyle"]
 
 [[tool.mypy.overrides]]
-module = ["pydub.*", "librosa.*", "bs4.*"]
+module = ["pydub.*", "librosa.*", "bs4.*", "win32con", "win32file", "pywintypes"]
 ignore_missing_imports = true

@@ -1,7 +1,7 @@
 """Unit tests for cross-platform timestamp helpers."""
 
 import sys
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -40,7 +40,7 @@ def test_get_creation_time_returns_datetime(fx_file: Path) -> None:
 @pytest.mark.skipif(sys.platform != "win32", reason="creation time is only writable on Windows")
 def test_set_creation_time_windows(fx_file: Path) -> None:
     """On Windows, `set_creation_time` actually changes the file's birth time."""
-    target = datetime(2020, 6, 15, 12, 0, 0, tzinfo=UTC).replace(tzinfo=None)
+    target = datetime(2020, 6, 15, 12, 0, 0)
     timestamps.set_creation_time(fx_file, target)
     result = timestamps.get_creation_time(fx_file)
     assert result.replace(microsecond=0) == target
