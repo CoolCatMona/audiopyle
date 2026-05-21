@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import zipfile
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -55,3 +56,31 @@ def test_scan_warns_and_skips_top_level_folders(tmp_path: Path, caplog) -> None:
 
     assert items == []
     assert any("subfolder" in record.message for record in caplog.records)
+
+
+def test_classify_multi_track_zip_is_album(tmp_path: Path) -> None:
+    archive = tmp_path / "album.zip"
+    _make_zip(archive, {"01.mp3": b"", "02.mp3": b""})
+    item = organize.StagedItem(source=archive, is_archive=True, mtime=datetime.now())
+    assert organize.classify(item, (".mp3",)) is organize.ItemKind.ALBUM_ARCHIVE
+
+
+def test_classify_single_track_zip_is_single(tmp_path: Path) -> None:
+    archive = tmp_path / "single.zip"
+    _make_zip(archive, {"01.mp3": b"a"})
+    item = organize.StagedItem(source=archive, is_archive=True, mtime=datetime.now())
+    assert organize.classify(item, (".mp3",)) is organize.ItemKind.SINGLE_FILE
+
+
+def test_classify_loose_audio_is_single(tmp_path: Path) -> None:
+    file = tmp_path / "track.flac"
+    file.write_bytes(b"a")
+    item = organize.StagedItem(source=file, is_archive=False, mtime=datetime.now())
+    assert organize.classify(item, (".mp3", ".flac")) is organize.ItemKind.SINGLE_FILE
+
+
+def test_classify_empty_zip_is_ignored(tmp_path: Path) -> None:
+    archive = tmp_path / "empty.zip"
+    _make_zip(archive, {"readme.txt": b""})
+    item = organize.StagedItem(source=archive, is_archive=True, mtime=datetime.now())
+    assert organize.classify(item, (".mp3",)) is organize.ItemKind.IGNORED

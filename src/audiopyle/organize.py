@@ -15,6 +15,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from audiopyle.builtins import DEFAULT_AUDIO_EXTENSIONS, is_audio
+from audiopyle.extract import count_audio_in_zip
 from audiopyle.timestamps import get_mtime
 
 logger = logging.getLogger(__name__)
@@ -70,3 +71,23 @@ def scan_staging(
         else:
             logger.warning("Skipping unrecognized file: %s", entry)
     return items
+
+
+def classify(item: StagedItem, audio_extensions: tuple[str, ...]) -> ItemKind:
+    """Decide whether an item is an album archive, a single, or ignored.
+
+    Args:
+        item: One :class:`StagedItem` from :func:`scan_staging`.
+        audio_extensions: Suffixes that classify a member as audio.
+
+    Returns:
+        One of :class:`ItemKind`.
+    """
+    if item.is_archive:
+        audio_count = count_audio_in_zip(item.source, audio_extensions)
+        if audio_count >= 2:
+            return ItemKind.ALBUM_ARCHIVE
+        if audio_count == 1:
+            return ItemKind.SINGLE_FILE
+        return ItemKind.IGNORED
+    return ItemKind.SINGLE_FILE
