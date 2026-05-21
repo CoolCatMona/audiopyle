@@ -166,3 +166,20 @@ def test_organize_merges_into_existing_album_folder(tmp_path: Path) -> None:
 
     assert (existing / "01.mp3").read_bytes() == b"existing"
     assert (existing / "02.mp3").read_bytes() == b"b"
+
+
+def test_organize_rejects_zip_slip(tmp_path: Path) -> None:
+    from audiopyle.exceptions import ExtractionError
+
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    archive = staging / "evil.zip"
+    _make_zip(archive, {"01.mp3": b"a", "../escape.mp3": b"b"})
+
+    with pytest.raises(ExtractionError):
+        organize.organize(
+            staging=staging,
+            library=tmp_path / "library",
+            audio_extensions=(".mp3",),
+            dry_run=False,
+        )
