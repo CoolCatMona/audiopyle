@@ -101,3 +101,34 @@ def test_config_show_prints_resolved(tmp_path: Path) -> None:
 
     assert result.exit_code == 0, result.output
     assert str(tmp_path / "stage") in result.output
+
+
+def test_organize_zip_slip_emits_clean_error(tmp_path: Path) -> None:
+    runner = CliRunner()
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    archive = staging / "evil.zip"
+    _make_zip(archive, {"01.mp3": b"a", "../escape.mp3": b"b"})
+
+    library = tmp_path / "library"
+    library.mkdir()
+
+    result = runner.invoke(
+        app,
+        [
+            "organize",
+            "--staging",
+            str(staging),
+            "--library",
+            str(library),
+            "--config",
+            str(tmp_path / "missing.toml"),
+        ],
+    )
+
+    assert result.exit_code == 1, result.output
+    # No traceback in user-facing output:
+    assert "Traceback" not in result.output
+    # Clean error prefix:
+    combined = result.output + (result.stderr if hasattr(result, "stderr") else "")
+    assert "ERROR:" in combined or "Unsafe archive member" in combined

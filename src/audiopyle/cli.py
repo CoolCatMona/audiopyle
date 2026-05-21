@@ -17,6 +17,7 @@ import typer
 from audiopyle import config as config_module
 from audiopyle import organize as organize_module
 from audiopyle.builtins import get_or_configure_logger
+from audiopyle.exceptions import AudiopyleError
 
 app = typer.Typer(add_completion=False, help="Local music management CLI.")
 config_app = typer.Typer(add_completion=False, help="Inspect or scaffold the config file.")
@@ -50,12 +51,16 @@ def organize_cmd(
         )
         raise typer.Exit(code=2)
 
-    results = organize_module.organize(
-        staging=cfg.staging,
-        library=cfg.library,
-        audio_extensions=cfg.audio_extensions,
-        dry_run=cfg.dry_run,
-    )
+    try:
+        results = organize_module.organize(
+            staging=cfg.staging,
+            library=cfg.library,
+            audio_extensions=cfg.audio_extensions,
+            dry_run=cfg.dry_run,
+        )
+    except AudiopyleError as exc:
+        typer.echo(f"ERROR: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
 
     albums = sum(1 for r in results if r.kind is organize_module.ItemKind.ALBUM_ARCHIVE and r.ok)
     singles = sum(1 for r in results if r.kind is organize_module.ItemKind.SINGLE_FILE and r.ok)
